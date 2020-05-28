@@ -7,7 +7,7 @@ namespace RapidCMS.Core.Abstractions.Forms
 {
     public interface IEditContext
     {
-
+        bool IsValid();
     }
 
     public interface IEditContext<TEntity> : IEditContext

@@ -37,6 +37,9 @@ namespace RapidCMS.Core.Forms
         public bool? IsModified(string propertyName) 
             => GetPropertyState(propertyName)?.IsModified;
 
+        public bool IsValid()
+            => _editContext.IsValid();
+
         public bool? IsValid<TValue>(Expression<Func<TEntity, TValue>> property) 
             => GetPropertyState(GetMetadata(property))?.GetValidationMessages().Any() == false;
 

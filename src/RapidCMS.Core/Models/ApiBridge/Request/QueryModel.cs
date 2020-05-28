@@ -12,6 +12,7 @@ namespace RapidCMS.Core.Models.ApiBridge.Request
         public string? SearchTerm { get; set; }
         public int? ActiveTab { get; set; }
 
+        // TODO: protect this variable more
         public string? VariantTypeName { get; set; }
 
         [JsonIgnore]

@@ -5,6 +5,7 @@ using RapidCMS.Core.Abstractions.Data;
 using RapidCMS.Core.Abstractions.Forms;
 using RapidCMS.Core.Abstractions.Metadata;
 using RapidCMS.Core.Enums;
+using RapidCMS.Core.Extensions;
 using RapidCMS.Core.Helpers;
 
 namespace RapidCMS.Core.Forms
@@ -16,9 +17,9 @@ namespace RapidCMS.Core.Forms
         private readonly FormState _formState;
 
         public ApiEditContextWrapper(
-            UsageType usageType, 
-            EntityState entityState, 
-            TEntity entity, 
+            UsageType usageType,
+            EntityState entityState,
+            TEntity entity,
             TEntity? currentEntity,
             IParent? parent,
             IServiceProvider serviceProvider)
@@ -42,7 +43,7 @@ namespace RapidCMS.Core.Forms
             // TODO TODO TODO
             return new RelationContainer(Enumerable.Empty<IRelation>());
         }
-         
+
         public bool? IsModified<TValue>(Expression<Func<TEntity, TValue>> property)
         {
             if (_currentEntity == null)
@@ -62,19 +63,26 @@ namespace RapidCMS.Core.Forms
             return !property?.GetValue(Entity)?.Equals(property.GetValue(_currentEntity));
         }
 
-        public bool? IsValid<TValue>(Expression<Func<TEntity, TValue>> property) 
+        public bool IsValid()
+        {
+            _formState.ValidateModel(createWhenNotFound: true);
+
+            return !_formState.GetValidationMessages().Any();
+        }
+
+        public bool? IsValid<TValue>(Expression<Func<TEntity, TValue>> property)
             => _formState.GetPropertyState(GetMetadata(property))?.GetValidationMessages().Any();
 
-        public bool? IsValid(string propertyName) 
+        public bool? IsValid(string propertyName)
             => _formState.GetPropertyState(propertyName)?.GetValidationMessages().Any();
 
-        public bool? WasValidated<TValue>(Expression<Func<TEntity, TValue>> property) 
+        public bool? WasValidated<TValue>(Expression<Func<TEntity, TValue>> property)
             => _formState.GetPropertyState(GetMetadata(property))?.WasValidated;
 
-        public bool? WasValidated(string propertyName) 
+        public bool? WasValidated(string propertyName)
             => _formState.GetPropertyState(propertyName)?.WasValidated;
 
-        private IPropertyMetadata GetMetadata<TValue>(Expression<Func<TEntity, TValue>> property) 
+        private IPropertyMetadata GetMetadata<TValue>(Expression<Func<TEntity, TValue>> property)
             => PropertyMetadataHelper.GetPropertyMetadata(property) ?? throw new InvalidOperationException("Given expression cannot be converted to PropertyMetadata");
     }
 }

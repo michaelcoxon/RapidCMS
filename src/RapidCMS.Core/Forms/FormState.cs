@@ -7,6 +7,8 @@ using RapidCMS.Core.Abstractions.Data;
 using RapidCMS.Core.Abstractions.Metadata;
 using RapidCMS.Core.Extensions;
 using RapidCMS.Core.Forms.Validation;
+using RapidCMS.Core.Helpers;
+using RapidCMS.Core.Models.Metadata;
 using RapidCMS.Core.Providers;
 
 namespace RapidCMS.Core.Forms
@@ -85,7 +87,7 @@ namespace RapidCMS.Core.Forms
             return fieldState;
         }
 
-        public void ValidateModel()
+        public void ValidateModel(bool createWhenNotFound = false)
         {
             var results = GetValidationResultsForModel();
 
@@ -93,10 +95,30 @@ namespace RapidCMS.Core.Forms
             {
                 var strayError = true;
 
+                // TODO: this is a mess
+
                 result.MemberNames.ForEach(name =>
                 {
-                    GetPropertyState(name)?.AddMessage(result.ErrorMessage);
-                    strayError = false;
+                    PropertyState? propertyState;
+                    if (createWhenNotFound)
+                    {
+                        var property = PropertyMetadataHelper.GetPropertyMetadata(_entity.GetType(), _entity.GetType().GetProperty(name));
+                        propertyState = GetPropertyState(property, true);
+                    }
+                    else
+                    {
+                        propertyState = GetPropertyState(name);
+                    }
+
+                    if (propertyState != null)
+                    {
+                        propertyState.AddMessage(result.ErrorMessage);
+                        strayError = false;
+                    }
+                    else if (!createWhenNotFound)
+                    {
+                        strayError = false;
+                    }
                 });
 
                 if (strayError)
@@ -144,7 +166,6 @@ namespace RapidCMS.Core.Forms
             try
             {
                 // even though this says Try, and therefore it should not throw an error, IT DOES when a given property is not part of Entity
-                Validator.TryValidateProperty(property.Getter(_entity), context, results);
                 Validator.TryValidateProperty(property.Getter(_entity), context, results);
             }
             catch { }

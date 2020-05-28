@@ -36,7 +36,8 @@ namespace RapidCMS.Core.Controllers
             get => (string)ControllerContext.ActionDescriptor.Properties[CollectionControllerRouteConvention.CollectionAliasKey];
         }
 
-        // TODO: validation?
+        // TODO: validation? -> some synchronisation of the changed properties is required
+        // without allowing the API to tell what needs to be validated
         // TODO: parentId + IQuery + variant + pagination
         // TODO: remove all logic and put it in a general class for reuse to support things like Azure Functions
         // TODO: mapped variation?
