@@ -114,6 +114,7 @@ namespace RapidCMS.UI.Components.Sections
             }
             else if (ex is InvalidEntityException)
             {
+                // TODO: make this nicer
                 MessageService.AddMessage(MessageType.Error, "Failed to perform action, Entity is in invalid state.");
             }
             else

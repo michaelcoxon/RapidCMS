@@ -37,7 +37,7 @@ namespace RapidCMS.Example.WebAssembly.API
                 config.RegisterRepository<Person, JsonRepository<Person>>("person");
                 config.RegisterRepository<ConventionalPerson, JsonRepository<ConventionalPerson>>("person-convention");
                 config.RegisterRepository<Country, JsonRepository<Country>>("country");
-                config.RegisterRepository<User, JsonRepository<User>>("user");
+                // config.RegisterRepository<User, JsonRepository<User>>("user");
                 config.RegisterRepository<TagGroup, JsonRepository<TagGroup>>("taggroup");
                 config.RegisterRepository<Tag, JsonRepository<Tag>>("tag");
                 config.RegisterRepository<MappedEntity, DatabaseEntity, MappedInMemoryRepository<MappedEntity, DatabaseEntity>>("mapped")

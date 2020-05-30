@@ -117,7 +117,6 @@ namespace RapidCMS.Core.Dispatchers.Form
                             EditContext = editContext,
                             ListContext = request.ListContext
                         };
-
                         if (!editContext.IsValid())
                         {
                             throw new InvalidEntityException();

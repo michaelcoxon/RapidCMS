@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RapidCMS.Core.Abstractions.Data;
 using RapidCMS.Core.Abstractions.Metadata;
 using RapidCMS.Core.Enums;
@@ -35,6 +36,8 @@ namespace RapidCMS.Core.Forms
         public ReorderedState ReorderedState { get; private set; }
         internal string? ReorderedBeforeId { get; private set; }
         public EntityState EntityState => UsageType.HasFlag(UsageType.New) ? EntityState.IsNew : EntityState.IsExisting;
+
+        public ModelStateDictionary ValidationErrors => _formState.ModelState;
 
         internal List<DataProvider> DataProviders = new List<DataProvider>();
 

@@ -10,6 +10,9 @@ using RapidCMS.Core.Models.Metadata;
 
 namespace RapidCMS.Core.Helpers
 {
+    /// <summary>
+    /// Static helper for a lot of Expression magic
+    /// </summary>
     internal static class PropertyMetadataHelper
     {
         /// <summary>
@@ -181,16 +184,60 @@ namespace RapidCMS.Core.Helpers
 
         /// <summary>
         /// Converts a given subject and property info to PropertyMetadataHelper.
+        /// 
+        /// Converts (obj, A) to (obj) => obj.A
         /// </summary>
         /// <param name="subject"></param>
         /// <param name="propertyInfo"></param>
         /// <returns></returns>
         public static IPropertyMetadata? GetPropertyMetadata(Type subject, PropertyInfo propertyInfo)
         {
+            // TODO: unit test
+
             var parameter = Expression.Parameter(subject);
             var property = Expression.Property(parameter, propertyInfo);
+            if (property == null)
+            {
+                throw new InvalidOperationException("Could not get property from subject");
+            }
+
             var delegateType = typeof(Func<,>).MakeGenericType(subject, propertyInfo.PropertyType);
             var lambda = Expression.Lambda(delegateType, property, parameter);
+
+            return GetPropertyMetadata(lambda);
+        }
+
+        /// <summary>
+        /// Converts a given subject and chained properties to PropertyMetadataHelper
+        /// 
+        /// Converts (obj, [A,B], C) to (obj) => obj.A.B.C
+        /// </summary>
+        /// <param name="subject"></param>
+        /// <param name="objectProperties"></param>
+        /// <param name="propertyInfo"></param>
+        /// <returns></returns>
+        public static IPropertyMetadata? GetPropertyMetadata(Type subject, IEnumerable<PropertyInfo>? objectProperties, PropertyInfo propertyInfo)
+        {
+            // TODO: unit test
+
+            if (objectProperties == null)
+            {
+                return GetPropertyMetadata(subject, propertyInfo);
+            }
+
+            // given infos: [A, B], C
+            // get to expression: C(B(A(subject)))
+
+            var parameter = Expression.Parameter(subject);
+            if (!(objectProperties
+                .Union(new[] { propertyInfo })
+                .Aggregate((Expression)parameter, (param, prop) => Expression.Property(param, prop)) is MemberExpression nestedProperty))
+            {
+                throw new InvalidOperationException("Could not get nested property from subject");
+            }
+
+            var delegateType = typeof(Func<,>).MakeGenericType(subject, propertyInfo.PropertyType);
+            var lambda = Expression.Lambda(delegateType, nestedProperty, parameter);
 
             return GetPropertyMetadata(lambda);
         }

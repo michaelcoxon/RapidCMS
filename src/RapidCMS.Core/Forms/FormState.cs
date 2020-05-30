@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
 using RapidCMS.Core.Abstractions.Data;
 using RapidCMS.Core.Abstractions.Metadata;
@@ -34,7 +36,7 @@ namespace RapidCMS.Core.Forms
             foreach (var message in _messages)
             {
                 yield return message;
-            } 
+            }
             foreach (var message in _fieldStates.SelectMany(x => x.GetValidationMessages()))
             {
                 yield return message;
@@ -57,6 +59,73 @@ namespace RapidCMS.Core.Forms
             foreach (var fieldState in _fieldStates)
             {
                 fieldState.ClearMessages();
+            }
+        }
+
+        public ModelStateDictionary ModelState
+        {
+            get
+            {
+                var state = new ModelStateDictionary();
+
+                _fieldStates.ForEach(fs => fs.GetValidationMessages().ForEach(message => state.AddModelError(fs.Property.PropertyName, message)));
+                _messages.ForEach(m => state.AddModelError(string.Empty, m));
+
+                return state;
+            }
+        }
+
+        public void PopulatePropertyStatesUsingReferenceEntity(IEntity reference)
+        {
+            GetPropertyMetadatas(reference).ForEach(property =>
+            {
+                if ((property.PropertyType.IsValueType || 
+                    property.PropertyType == typeof(string)) && 
+                    !Equals(property.Getter(reference), property.Getter(_entity)))
+                {
+                    GetPropertyState(property)!.IsModified = true;
+                }
+            });
+        }
+
+        public void PopulateAllPropertyStates()
+        {
+            GetPropertyMetadatas(_entity).ForEach(property => GetPropertyState(property, createWhenNotFound: true));
+        }
+
+        private IEnumerable<IPropertyMetadata> GetPropertyMetadatas(IEntity reference, IEnumerable<PropertyInfo>? objectGetters = default)
+        {
+            Func<object, object> getObject;
+            if (objectGetters == null)
+            {
+                getObject = (root) => root;
+            }
+            else
+            {
+                getObject = (root) => objectGetters.Aggregate(root, (@obj, objectGetter) => objectGetter.GetValue(@obj));
+            }
+
+            var properties = getObject(reference).GetType().GetProperties();
+
+            foreach (var property in properties)
+            {
+                var validateObjectAttribute = property.GetCustomAttribute<ValidateObjectAttribute>();
+                if (validateObjectAttribute != null)
+                {
+                    // only venture into nested objects when the model wants them validated
+                    foreach (var nestedPropertyMetadata in GetPropertyMetadatas(reference, (objectGetters ?? new PropertyInfo[] { }).Union(new[] { property })))
+                    {
+                        yield return nestedPropertyMetadata;
+                    }
+                }
+
+                var propertyMetadata = PropertyMetadataHelper.GetPropertyMetadata(reference.GetType(), objectGetters, property);
+                if (propertyMetadata == null)
+                {
+                    continue;
+                }
+
+                yield return propertyMetadata;
             }
         }
 
@@ -87,38 +156,17 @@ namespace RapidCMS.Core.Forms
             return fieldState;
         }
 
-        public void ValidateModel(bool createWhenNotFound = false)
+        public void ValidateModel()
         {
             var results = GetValidationResultsForModel();
 
             foreach (var result in results)
             {
                 var strayError = true;
-
-                // TODO: this is a mess
-
                 result.MemberNames.ForEach(name =>
                 {
-                    PropertyState? propertyState;
-                    if (createWhenNotFound)
-                    {
-                        var property = PropertyMetadataHelper.GetPropertyMetadata(_entity.GetType(), _entity.GetType().GetProperty(name));
-                        propertyState = GetPropertyState(property, true);
-                    }
-                    else
-                    {
-                        propertyState = GetPropertyState(name);
-                    }
-
-                    if (propertyState != null)
-                    {
-                        propertyState.AddMessage(result.ErrorMessage);
-                        strayError = false;
-                    }
-                    else if (!createWhenNotFound)
-                    {
-                        strayError = false;
-                    }
+                    GetPropertyState(name)?.AddMessage(result.ErrorMessage);
+                    strayError = false;
                 });
 
                 if (strayError)

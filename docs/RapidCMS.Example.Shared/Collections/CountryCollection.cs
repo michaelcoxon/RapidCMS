@@ -78,7 +78,10 @@ namespace RapidCMS.Example.Shared.Collections
                                             // when the user selects an element, the value that is used as Id is used
                                             // to set the value of the property
                                             .SetElementIdProperty(x => x.Id)
-                                            .SetElementDisplayProperties(x => x.Name, x => x.Email);
+
+                                            // multiple display properties can be used to display the dropdown, even
+                                            // with nested properties
+                                            .SetElementDisplayProperties(x => x.Name, x => x.Details.Email);
                                     });
                         });
                     });

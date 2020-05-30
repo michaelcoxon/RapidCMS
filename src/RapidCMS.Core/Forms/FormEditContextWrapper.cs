@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RapidCMS.Core.Abstractions.Data;
 using RapidCMS.Core.Abstractions.Forms;
 using RapidCMS.Core.Abstractions.Metadata;
@@ -28,6 +29,8 @@ namespace RapidCMS.Core.Forms
 
         public IParent? Parent => _editContext.Parent;
 
+        public ModelStateDictionary ValidationErrors => _editContext.ValidationErrors;
+
         public IRelationContainer GetRelationContainer() 
             => new RelationContainer(_editContext.DataProviders.Select(x => x.GenerateRelation()).SelectNotNull(x => x));
 
@@ -52,13 +55,23 @@ namespace RapidCMS.Core.Forms
         public bool? WasValidated(string propertyName) 
             => GetPropertyState(propertyName)?.WasValidated;
 
-        internal PropertyState? GetPropertyState(IPropertyMetadata property) 
+        private PropertyState? GetPropertyState(IPropertyMetadata property) 
             => _editContext.GetPropertyState(property, false);
 
-        internal PropertyState? GetPropertyState(string propertyName)
+        private PropertyState? GetPropertyState(string propertyName)
             => _editContext.GetPropertyState(propertyName);
 
         private IPropertyMetadata GetMetadata<TValue>(Expression<Func<TEntity, TValue>> property)
             => PropertyMetadataHelper.GetPropertyMetadata(property) ?? throw new InvalidOperationException("Given expression cannot be converted to PropertyMetadata");
+
+        public bool? Validate<TValue>(Expression<Func<TEntity, TValue>> property)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void EnforceCompleteValidation()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -26,21 +26,21 @@ namespace RapidCMS.Example.WebAssembly
 
             builder.Services.AddAuthorizationCore();
 
-            // with LocalStorageRepository collections can store their data in the local storage of
-            // the user, making personalisation quite easy
-            builder.Services.AddBlazoredLocalStorage();
-            builder.Services.AddScoped<BaseRepository<Person>, LocalStorageRepository<Person>>();
-
+            builder.Services.AddScoped<BaseRepository<Person>, ApiRepository<Person>>();
+            builder.Services.AddRapidCMSApiHttpClient<Person>(_baseUri, "person");
             builder.Services.AddScoped<BaseRepository<ConventionalPerson>, ApiRepository<ConventionalPerson>>();
             builder.Services.AddRapidCMSApiHttpClient<ConventionalPerson>(_baseUri, "person-convention");
             builder.Services.AddScoped<BaseRepository<Country>, ApiRepository<Country>>();
             builder.Services.AddRapidCMSApiHttpClient<Country>(_baseUri, "country");
-            builder.Services.AddScoped<BaseRepository<User>, ApiRepository<User>>();
-            builder.Services.AddRapidCMSApiHttpClient<User>(_baseUri, "user");
             builder.Services.AddScoped<BaseRepository<TagGroup>, ApiRepository<TagGroup>>();
             builder.Services.AddRapidCMSApiHttpClient<TagGroup>(_baseUri, "taggroup");
             builder.Services.AddScoped<BaseRepository<Tag>, ApiRepository<Tag>>();
             builder.Services.AddRapidCMSApiHttpClient<Tag>(_baseUri, "tag");
+
+            // with LocalStorageRepository collections can store their data in the local storage of
+            // the user, making personalisation quite easy
+            builder.Services.AddBlazoredLocalStorage();
+            builder.Services.AddScoped<BaseRepository<User>, LocalStorageRepository<User>>();
 
             builder.Services.AddSingleton<BaseMappedRepository<MappedEntity, DatabaseEntity>, ApiMappedRepository<MappedEntity, DatabaseEntity>>();
             builder.Services.AddRapidCMSApiHttpClient<MappedEntity, DatabaseEntity>(_baseUri, "mapped");

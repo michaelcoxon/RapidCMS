@@ -217,7 +217,16 @@ namespace RapidCMS.Core.Controllers
                     EntityState = EntityState.IsNew
                 }, ViewState.Api);
 
-                return Ok(((NewEntityApiCommandResponseModel)response).NewEntity);
+                return response switch
+                {
+                    ApiPersistEntityResponseModel persistResponse when persistResponse.ValidationErrors != null => BadRequest(persistResponse.ValidationErrors),
+                    ApiPersistEntityResponseModel insertResponse when insertResponse.NewEntity != null => Ok(insertResponse.NewEntity),
+                    _ => Ok()
+                };
+            }
+            catch (InvalidEntityException)
+            {
+                return BadRequest();
             }
             catch (NotFoundException)
             {
@@ -238,7 +247,7 @@ namespace RapidCMS.Core.Controllers
         {
             try
             {
-                await _interactionService.InteractAsync<PersistEntityRequestModel, ApiCommandResponseModel>(new PersistEntityRequestModel
+                var response = await _interactionService.InteractAsync<PersistEntityRequestModel, ApiCommandResponseModel>(new PersistEntityRequestModel
                 {
                     Descriptor = new EntityDescriptor
                     {
@@ -250,7 +259,15 @@ namespace RapidCMS.Core.Controllers
                     EntityState = EntityState.IsExisting
                 }, ViewState.Api);
 
-                return Ok();
+                return response switch
+                {
+                    ApiPersistEntityResponseModel persistResponse when persistResponse.ValidationErrors != null => BadRequest(persistResponse.ValidationErrors),
+                    _ => Ok()
+                };
+            }
+            catch (InvalidEntityException)
+            {
+                return BadRequest();
             }
             catch (NotFoundException)
             {
