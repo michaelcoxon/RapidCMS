@@ -23,7 +23,7 @@ namespace RapidCMS.Example.Shared.Collections
                     .SetListEditor(editor =>
                     {
                         // you can control the number of entities on a single page
-                        editor.SetPageSize(2);
+                        editor.SetPageSize(20);
 
                         editor.AddDefaultButton(DefaultButtonType.Return);
                         editor.AddDefaultButton(DefaultButtonType.New);
@@ -70,10 +70,12 @@ namespace RapidCMS.Example.Shared.Collections
 
                                 // some default editors (like FileUploadEditor) require custom components, so they must be added using their full classname
                                 // NoPreview is a default component indicating this upload editor has no preview of the file
+                                // TODO
                                 //section.AddField(x => x.FileBase64).SetType(typeof(FileUploadEditor<Base64TextFileUploadHandler, NoPreview>))
                                 //    .SetName("User file");
 
                                 // ImagePreview is a custom component derived from BasePreview to display the uploaded image
+                                // TODO
                                 //section.AddField(x => x.ProfilePictureBase64).SetType(typeof(FileUploadEditor<Base64ImageUploadHandler, ImagePreview>))
                                 //    .SetName("User picture");
 

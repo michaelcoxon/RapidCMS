@@ -71,16 +71,6 @@ namespace RapidCMS.Core.Forms
         public bool? WasValidated(string propertyName)
             => GetPropertyState(propertyName)?.WasValidated;
 
-        private PropertyState? GetPropertyState(IPropertyMetadata property)
-            => _formState.GetPropertyState(property, false);
-
-        private PropertyState? GetPropertyState(string propertyName)
-            => _formState.GetPropertyState(propertyName);
-
-        private IPropertyMetadata GetMetadata<TValue>(Expression<Func<TEntity, TValue>> property)
-            => PropertyMetadataHelper.GetPropertyMetadata(property)
-            ?? throw new InvalidOperationException("Given expression cannot be converted to PropertyMetadata");
-
         public bool? Validate<TValue>(Expression<Func<TEntity, TValue>> property)
         {
             var metadata = GetMetadata(property);
@@ -98,11 +88,21 @@ namespace RapidCMS.Core.Forms
         {
             // add all properties to the form state
             _formState.PopulateAllPropertyStates();
-            
+
             if (!IsValid())
             {
                 throw new InvalidEntityException();
             }
         }
+
+        private PropertyState? GetPropertyState(IPropertyMetadata property)
+            => _formState.GetPropertyState(property, false);
+
+        private PropertyState? GetPropertyState(string propertyName)
+            => _formState.GetPropertyState(propertyName);
+
+        private IPropertyMetadata GetMetadata<TValue>(Expression<Func<TEntity, TValue>> property)
+            => PropertyMetadataHelper.GetPropertyMetadata(property)
+            ?? throw new InvalidOperationException("Given expression cannot be converted to PropertyMetadata");
     }
 }

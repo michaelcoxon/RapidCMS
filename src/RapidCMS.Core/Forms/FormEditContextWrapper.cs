@@ -6,6 +6,7 @@ using RapidCMS.Core.Abstractions.Data;
 using RapidCMS.Core.Abstractions.Forms;
 using RapidCMS.Core.Abstractions.Metadata;
 using RapidCMS.Core.Enums;
+using RapidCMS.Core.Exceptions;
 using RapidCMS.Core.Extensions;
 using RapidCMS.Core.Helpers;
 
@@ -29,7 +30,7 @@ namespace RapidCMS.Core.Forms
 
         public IParent? Parent => _editContext.Parent;
 
-        public ModelStateDictionary ValidationErrors => _editContext.ValidationErrors;
+        public ModelStateDictionary ValidationErrors => _editContext.FormState.ModelState;
 
         public IRelationContainer GetRelationContainer() 
             => new RelationContainer(_editContext.DataProviders.Select(x => x.GenerateRelation()).SelectNotNull(x => x));
@@ -55,6 +56,24 @@ namespace RapidCMS.Core.Forms
         public bool? WasValidated(string propertyName) 
             => GetPropertyState(propertyName)?.WasValidated;
 
+        public bool? Validate<TValue>(Expression<Func<TEntity, TValue>> property)
+        {
+            // make sure it will be validated
+            _editContext.NotifyPropertyIncludedInForm(GetMetadata(property));
+            return IsValid(property);
+        }
+
+        public void EnforceCompleteValidation()
+        {
+            // add all properties to the form state
+            _editContext.FormState.PopulateAllPropertyStates();
+
+            if (!IsValid())
+            {
+                throw new InvalidEntityException();
+            }
+        }
+
         private PropertyState? GetPropertyState(IPropertyMetadata property) 
             => _editContext.GetPropertyState(property, false);
 
@@ -63,15 +82,5 @@ namespace RapidCMS.Core.Forms
 
         private IPropertyMetadata GetMetadata<TValue>(Expression<Func<TEntity, TValue>> property)
             => PropertyMetadataHelper.GetPropertyMetadata(property) ?? throw new InvalidOperationException("Given expression cannot be converted to PropertyMetadata");
-
-        public bool? Validate<TValue>(Expression<Func<TEntity, TValue>> property)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void EnforceCompleteValidation()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
