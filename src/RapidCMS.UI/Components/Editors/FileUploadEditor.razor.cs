@@ -42,7 +42,7 @@ namespace RapidCMS.UI.Components.Editors
             }
 
             var fileInfo = await file.ReadFileInfoAsync();
-            var validationMessages = FileUploadHandler.ValidateFile(fileInfo);
+            var validationMessages = FileUploadHandler.ValidateFileAsync(fileInfo);
             if (validationMessages.Any())
             {
                 foreach (var message in validationMessages)
@@ -52,6 +52,7 @@ namespace RapidCMS.UI.Components.Editors
 
                 EditContext.NotifyPropertyFinished(Property);
 
+                UploadCompletion = 0.0;
                 StateHasChanged();
                 return;
             }

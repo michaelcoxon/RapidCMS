@@ -24,7 +24,7 @@ namespace RapidCMS.Example.Shared.Handlers
             }
         }
 
-        public IEnumerable<string> ValidateFile(IFileInfo fileInfo)
+        public async IAsyncEnumerable<string> ValidateFile(IFileInfo fileInfo)
         {
             // you'd probably want to make this check more thorough as it's trusting completely trusting the user input
             if (fileInfo.Type != "image/png")

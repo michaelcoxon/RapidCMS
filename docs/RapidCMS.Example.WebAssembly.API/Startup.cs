@@ -43,6 +43,8 @@ namespace RapidCMS.Example.WebAssembly.API
                 config.RegisterRepository<MappedEntity, DatabaseEntity, MappedInMemoryRepository<MappedEntity, DatabaseEntity>>("mapped")
                     .SetDataViewBuilder<DatabaseEntityDataViewBuilder>();
 
+
+
                 config.AllowAnonymousUser();
             });
 

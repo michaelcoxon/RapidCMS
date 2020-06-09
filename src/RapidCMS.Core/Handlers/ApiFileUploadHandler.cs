@@ -1,0 +1,93 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Blazor.FileReader;
+using Newtonsoft.Json;
+using RapidCMS.Core.Abstractions.Handlers;
+using RapidCMS.Core.Extensions;
+
+namespace RapidCMS.Core.Handlers
+{
+    public sealed class ApiFileUploadHandler<THandler> : IFileUploadHandler
+        where THandler : IFileUploadHandler
+    {
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly string _handlerAlias;
+
+        public ApiFileUploadHandler(
+            IHttpClientFactory httpClientFactory)
+        {
+            _httpClientFactory = httpClientFactory;
+            _handlerAlias = typeof(THandler).FullName.ToUrlFriendlyString();
+        }
+
+        public async Task<object> SaveFileAsync(IFileInfo fileInfo, Stream stream)
+        {
+            return await DoRequestAsync<object>(CreateRequest("file/validate", fileInfo, stream));
+        }
+
+        public async IAsyncEnumerable<string> ValidateFile(IFileInfo fileInfo)
+        {
+            var result = await DoRequestAsync<IEnumerable<string>>(CreateRequest("file/validate", fileInfo));
+            foreach (var error in result)
+            {
+                yield return error;
+            }
+        }
+
+        private HttpRequestMessage CreateRequest(string url, IFileInfo fileInfo, Stream? stream = default)
+        {
+            var content = new MultipartFormDataContent
+            {
+                { new StringContent(fileInfo.LastModified?.ToString()), nameof(IFileInfo.LastModified) },
+                { new StringContent(fileInfo.LastModifiedDate?.ToString()), nameof(IFileInfo.LastModifiedDate) },
+                { new StringContent(fileInfo.Name?.ToString()), nameof(IFileInfo.Name) },
+                { new StringContent(fileInfo.Size.ToString()), nameof(IFileInfo.Size) },
+                { new StringContent(fileInfo.Type?.ToString()), nameof(IFileInfo.Type) }
+            };
+
+            if (stream != null)
+            {
+                content.Add(new StreamContent(stream), "file", fileInfo.Name);
+            }
+
+            var request = new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = content
+            };
+
+            return request;
+        }
+
+        private async Task<HttpResponseMessage> DoRequestAsync(HttpRequestMessage request)
+        {
+            var httpClient = _httpClientFactory.CreateClient(_handlerAlias);
+            if (httpClient.BaseAddress == default)
+            {
+                throw new InvalidOperationException($"Please configure an HttpClient for the file handler '{_handlerAlias}' using " +
+                    $".TODO([..]) and configure its BaseAddress correctly.");
+            }
+
+            var response = await httpClient.SendAsync(request);
+            return response.StatusCode switch
+            {
+                HttpStatusCode.OK => response,
+                HttpStatusCode.Unauthorized => throw new UnauthorizedAccessException(),
+                HttpStatusCode.Forbidden => throw new UnauthorizedAccessException(),
+
+                _ => throw new InvalidOperationException()
+            };
+        }
+
+        private async Task<TResult> DoRequestAsync<TResult>(HttpRequestMessage request)
+            where TResult : class
+        {
+            var response = await DoRequestAsync(request);
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<TResult>(json);
+        }
+    }
+}

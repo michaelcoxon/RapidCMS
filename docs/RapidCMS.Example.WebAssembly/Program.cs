@@ -21,6 +21,8 @@ namespace RapidCMS.Example.WebAssembly
 
         public static async Task Main(string[] args)
         {
+            // TODO: add comments like the ServerSide project
+
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
@@ -47,8 +49,10 @@ namespace RapidCMS.Example.WebAssembly
             builder.Services.AddSingleton<DatabaseEntityDataViewBuilder>();
 
             builder.Services.AddSingleton<RandomNameActionHandler>();
-            builder.Services.AddSingleton<Base64TextFileUploadHandler>();
-            builder.Services.AddSingleton<Base64ImageUploadHandler>();
+
+
+            builder.Services.AddSingleton<ITextUploadHandler, Base64TextFileUploadHandler>();
+            builder.Services.AddSingleton<IImageUploadHandler, Base64ImageUploadHandler>();
 
             builder.Services.AddRapidCMSWebAssembly(config =>
             {

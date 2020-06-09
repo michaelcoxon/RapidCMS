@@ -5,7 +5,9 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using RapidCMS.Core.Abstractions.Config;
 using RapidCMS.Core.Abstractions.Data;
 using RapidCMS.Core.Abstractions.Forms;
 using RapidCMS.Core.Abstractions.Repositories;
@@ -119,7 +121,7 @@ namespace RapidCMS.Repositories.ApiBridge
             if (httpClient.BaseAddress == default)
             {
                 throw new InvalidOperationException($"Please configure an HttpClient for the collection '{context.CollectionAlias}' using " +
-                    $".AddHttpClient('{context.CollectionAlias}') and configure its BaseAddress correctly.");
+                    $".{nameof(RapidCMSMiddleware.AddRapidCMSApiHttpClient)}([..]) and configure its BaseAddress correctly.");
             }
 
             var response = await httpClient.SendAsync(request);
