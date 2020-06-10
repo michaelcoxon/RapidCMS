@@ -1,6 +1,7 @@
 ﻿using RapidCMS.Core.Abstractions.Config;
 using RapidCMS.Core.Abstractions.Handlers;
 using RapidCMS.Core.Enums;
+using RapidCMS.Core.Handlers;
 using RapidCMS.Core.Repositories;
 using RapidCMS.Example.Shared.Components;
 using RapidCMS.Example.Shared.Data;
@@ -74,11 +75,11 @@ namespace RapidCMS.Example.Shared.Collections
                                 // the file upload handler is different between ServerSide and WebAssembly, so only its interface is added here
                                 // and via DI the correct handler is resolved. it's also allowed to reference the correct handler here (for example: Base64TextFileUploadHandler)
                                 // to allow for per input configuration
-                                section.AddField(x => x.FileBase64).SetType(typeof(FileUploadEditor<ITextUploadHandler, NoPreview>))
+                                section.AddField(x => x.FileBase64).SetType(typeof(FileUploadEditor<ApiFileUploadHandler<Base64TextFileUploadHandler>, NoPreview>))
                                     .SetName("User file");
 
                                 // ImagePreview is a custom component derived from BasePreview to display the uploaded image
-                                section.AddField(x => x.ProfilePictureBase64).SetType(typeof(FileUploadEditor<IImageUploadHandler, ImagePreview>))
+                                section.AddField(x => x.ProfilePictureBase64).SetType(typeof(FileUploadEditor<ApiFileUploadHandler<Base64ImageUploadHandler>, ImagePreview>))
                                     .SetName("User picture");
 
                                 section.AddField(x => x.Integer).SetType(EditorType.Numeric);

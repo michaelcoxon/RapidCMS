@@ -21,7 +21,7 @@ namespace RapidCMS.Core.Handlers
             IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
-            _handlerAlias = typeof(THandler).FullName.ToUrlFriendlyString();
+            _handlerAlias = IFileUploadHandler.GetFileUploaderAlias(typeof(THandler));
         }
 
         public async Task<object> SaveFileAsync(IFileInfo fileInfo, Stream stream)
@@ -29,13 +29,9 @@ namespace RapidCMS.Core.Handlers
             return await DoRequestAsync<object>(CreateRequest("file/validate", fileInfo, stream));
         }
 
-        public async IAsyncEnumerable<string> ValidateFile(IFileInfo fileInfo)
+        public async Task<IEnumerable<string>> ValidateFileAsync(IFileInfo fileInfo)
         {
-            var result = await DoRequestAsync<IEnumerable<string>>(CreateRequest("file/validate", fileInfo));
-            foreach (var error in result)
-            {
-                yield return error;
-            }
+            return await DoRequestAsync<IEnumerable<string>>(CreateRequest("file/validate", fileInfo));
         }
 
         private HttpRequestMessage CreateRequest(string url, IFileInfo fileInfo, Stream? stream = default)

@@ -42,7 +42,7 @@ namespace RapidCMS.UI.Components.Editors
             }
 
             var fileInfo = await file.ReadFileInfoAsync();
-            var validationMessages = FileUploadHandler.ValidateFileAsync(fileInfo);
+            var validationMessages = await FileUploadHandler.ValidateFileAsync(fileInfo);
             if (validationMessages.Any())
             {
                 foreach (var message in validationMessages)

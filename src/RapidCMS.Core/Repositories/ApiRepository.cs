@@ -121,7 +121,7 @@ namespace RapidCMS.Repositories.ApiBridge
             if (httpClient.BaseAddress == default)
             {
                 throw new InvalidOperationException($"Please configure an HttpClient for the collection '{context.CollectionAlias}' using " +
-                    $".{nameof(RapidCMSMiddleware.AddRapidCMSApiHttpClient)}([..]) and configure its BaseAddress correctly.");
+                    $".{nameof(RapidCMSMiddleware.AddRapidCMSRepositoryApiHttpClient)}([..]) and configure its BaseAddress correctly.");
             }
 
             var response = await httpClient.SendAsync(request);

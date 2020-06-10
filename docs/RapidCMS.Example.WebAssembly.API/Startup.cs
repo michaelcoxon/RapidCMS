@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RapidCMS.Example.Shared.Data;
 using RapidCMS.Example.Shared.DataViews;
+using RapidCMS.Example.Shared.Handlers;
 using RapidCMS.Repositories;
 
 namespace RapidCMS.Example.WebAssembly.API
@@ -43,7 +44,8 @@ namespace RapidCMS.Example.WebAssembly.API
                 config.RegisterRepository<MappedEntity, DatabaseEntity, MappedInMemoryRepository<MappedEntity, DatabaseEntity>>("mapped")
                     .SetDataViewBuilder<DatabaseEntityDataViewBuilder>();
 
-
+                config.RegisterFileUploadHandler<Base64TextFileUploadHandler>();
+                config.RegisterFileUploadHandler<Base64ImageUploadHandler>();
 
                 config.AllowAnonymousUser();
             });

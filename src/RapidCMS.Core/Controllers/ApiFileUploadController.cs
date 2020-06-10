@@ -10,7 +10,7 @@ using RapidCMS.Core.Models.Request.Api;
 namespace RapidCMS.Core.Controllers
 {
     [ApiController]
-    public class ApiFileUploadController<THandler> : ControllerBase
+    internal class ApiFileUploadController<THandler> : ControllerBase
         where THandler : IFileUploadHandler
     {
         private readonly THandler _handler;

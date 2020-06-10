@@ -24,18 +24,22 @@ namespace RapidCMS.Example.Shared.Handlers
             }
         }
 
-        public async IAsyncEnumerable<string> ValidateFile(IFileInfo fileInfo)
+        public Task<IEnumerable<string>> ValidateFileAsync(IFileInfo fileInfo)
         {
+            var errors = new List<string>();
+
             // you'd probably want to make this check more thorough as it's trusting completely trusting the user input
             if (fileInfo.Type != "image/png")
             {
-                yield return "Only .png files are allowed.";
+                errors.Add("Only .png files are allowed.");
             }
 
             if (fileInfo.Size > 100 * 1024)
             {
-                yield return "Max upload size is 100KB.";
+                errors.Add("Max upload size is 100KB.");
             }
+
+            return Task.FromResult((IEnumerable<string>)errors);
         }
     }
 }

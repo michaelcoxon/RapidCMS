@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +16,7 @@ using RapidCMS.Core.Models.State;
 
 namespace RapidCMS.Core.Controllers
 {
-    public class ApiRepositoryController<TEntity, TRepository> : ControllerBase
+    internal class ApiRepositoryController<TEntity, TRepository> : ControllerBase
         where TEntity : class, IEntity
         where TRepository : IRepository
     {
@@ -34,7 +33,7 @@ namespace RapidCMS.Core.Controllers
 
         public string CollectionAlias
         {
-            get => (string)ControllerContext.ActionDescriptor.Properties[CollectionControllerRouteConvention.CollectionAliasKey];
+            get => (string)ControllerContext.ActionDescriptor.Properties[CollectionControllerRouteConvention.AliasKey];
         }
 
         // TODO: validation? -> some synchronisation of the changed properties is required

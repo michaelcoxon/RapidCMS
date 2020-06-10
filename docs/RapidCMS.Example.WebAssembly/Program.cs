@@ -3,7 +3,9 @@ using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using RapidCMS.Core.Abstractions.Handlers;
 using RapidCMS.Core.Abstractions.Setup;
+using RapidCMS.Core.Handlers;
 using RapidCMS.Core.Repositories;
 using RapidCMS.Example.Shared.Collections;
 using RapidCMS.Example.Shared.Components;
@@ -29,15 +31,15 @@ namespace RapidCMS.Example.WebAssembly
             builder.Services.AddAuthorizationCore();
 
             builder.Services.AddScoped<BaseRepository<Person>, ApiRepository<Person>>();
-            builder.Services.AddRapidCMSApiHttpClient<Person>(_baseUri, "person");
+            builder.Services.AddRapidCMSRepositoryApiHttpClient<Person>(_baseUri, "person");
             builder.Services.AddScoped<BaseRepository<ConventionalPerson>, ApiRepository<ConventionalPerson>>();
-            builder.Services.AddRapidCMSApiHttpClient<ConventionalPerson>(_baseUri, "person-convention");
+            builder.Services.AddRapidCMSRepositoryApiHttpClient<ConventionalPerson>(_baseUri, "person-convention");
             builder.Services.AddScoped<BaseRepository<Country>, ApiRepository<Country>>();
-            builder.Services.AddRapidCMSApiHttpClient<Country>(_baseUri, "country");
+            builder.Services.AddRapidCMSRepositoryApiHttpClient<Country>(_baseUri, "country");
             builder.Services.AddScoped<BaseRepository<TagGroup>, ApiRepository<TagGroup>>();
-            builder.Services.AddRapidCMSApiHttpClient<TagGroup>(_baseUri, "taggroup");
+            builder.Services.AddRapidCMSRepositoryApiHttpClient<TagGroup>(_baseUri, "taggroup");
             builder.Services.AddScoped<BaseRepository<Tag>, ApiRepository<Tag>>();
-            builder.Services.AddRapidCMSApiHttpClient<Tag>(_baseUri, "tag");
+            builder.Services.AddRapidCMSRepositoryApiHttpClient<Tag>(_baseUri, "tag");
 
             // with LocalStorageRepository collections can store their data in the local storage of
             // the user, making personalisation quite easy
@@ -45,14 +47,18 @@ namespace RapidCMS.Example.WebAssembly
             builder.Services.AddScoped<BaseRepository<User>, LocalStorageRepository<User>>();
 
             builder.Services.AddSingleton<BaseMappedRepository<MappedEntity, DatabaseEntity>, ApiMappedRepository<MappedEntity, DatabaseEntity>>();
-            builder.Services.AddRapidCMSApiHttpClient<MappedEntity, DatabaseEntity>(_baseUri, "mapped");
+            builder.Services.AddRapidCMSRepositoryApiHttpClient<MappedEntity, DatabaseEntity>(_baseUri, "mapped");
             builder.Services.AddSingleton<DatabaseEntityDataViewBuilder>();
 
             builder.Services.AddSingleton<RandomNameActionHandler>();
 
+            builder.Services.AddSingleton<Base64TextFileUploadHandler>();
+            builder.Services.AddSingleton<Base64ImageUploadHandler>();
 
-            builder.Services.AddSingleton<ITextUploadHandler, Base64TextFileUploadHandler>();
-            builder.Services.AddSingleton<IImageUploadHandler, Base64ImageUploadHandler>();
+            builder.Services.AddSingleton<ApiFileUploadHandler<Base64TextFileUploadHandler>>();
+            builder.Services.AddRapidCMSFileUploadApiHttpClient<Base64TextFileUploadHandler>(_baseUri);
+            builder.Services.AddSingleton<ApiFileUploadHandler<Base64ImageUploadHandler>>();
+            builder.Services.AddRapidCMSFileUploadApiHttpClient<Base64ImageUploadHandler>(_baseUri);
 
             builder.Services.AddRapidCMSWebAssembly(config =>
             {

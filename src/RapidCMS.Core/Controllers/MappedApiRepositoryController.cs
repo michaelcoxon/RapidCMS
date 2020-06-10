@@ -34,7 +34,7 @@ namespace RapidCMS.Core.Controllers
 
         public string CollectionAlias
         {
-            get => (string)ControllerContext.ActionDescriptor.Properties[CollectionControllerRouteConvention.CollectionAliasKey];
+            get => (string)ControllerContext.ActionDescriptor.Properties[CollectionControllerRouteConvention.AliasKey];
         }
 
         // TODO: validation?
