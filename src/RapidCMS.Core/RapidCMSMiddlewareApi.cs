@@ -22,6 +22,7 @@ using RapidCMS.Core.Conventions;
 using RapidCMS.Core.Dispatchers.Api;
 using RapidCMS.Core.Extensions;
 using RapidCMS.Core.Factories;
+using RapidCMS.Core.Handlers;
 using RapidCMS.Core.Models.Config.Api;
 using RapidCMS.Core.Providers;
 using RapidCMS.Core.Resolvers.Data;
@@ -114,7 +115,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 foreach (var handler in rootConfig.FileUploadHandlers)
                 {
                     var type = typeof(ApiFileUploadController<>).MakeGenericType(handler).GetTypeInfo();
-                    var alias = IFileUploadHandler.GetFileUploaderAlias(type);
+                    var alias = ApiFileUploadHandler.GetFileUploaderAlias(type);
 
                     controllersToAdd.Add(type, alias);
                 }

@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using RapidCMS.Core.Abstractions.Config;
 using RapidCMS.Core.Abstractions.Data;
 using RapidCMS.Core.Abstractions.Forms;
 using RapidCMS.Core.Abstractions.Repositories;

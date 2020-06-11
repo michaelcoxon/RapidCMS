@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -11,7 +12,20 @@ using RapidCMS.Core.Extensions;
 
 namespace RapidCMS.Core.Handlers
 {
-    public sealed class ApiFileUploadHandler<THandler> : IFileUploadHandler
+    public static class ApiFileUploadHandler
+    {
+        public static string GetFileUploaderAlias(Type handlerType)
+        {
+            var type = (handlerType.IsGenericType && handlerType.GetGenericTypeDefinition() == typeof(ApiFileUploadHandler<>))
+                ? handlerType.GetGenericArguments().FirstOrDefault()
+                : handlerType;
+
+            Console.WriteLine(type);
+            return type?.Name.ToUrlFriendlyString() ?? "unknown-file-handler";
+        }
+    }
+
+    public class ApiFileUploadHandler<THandler> : IFileUploadHandler
         where THandler : IFileUploadHandler
     {
         private readonly IHttpClientFactory _httpClientFactory;
@@ -21,7 +35,7 @@ namespace RapidCMS.Core.Handlers
             IHttpClientFactory httpClientFactory)
         {
             _httpClientFactory = httpClientFactory;
-            _handlerAlias = IFileUploadHandler.GetFileUploaderAlias(typeof(THandler));
+            _handlerAlias = ApiFileUploadHandler.GetFileUploaderAlias(typeof(THandler));
         }
 
         public async Task<object> SaveFileAsync(IFileInfo fileInfo, Stream stream)
@@ -64,7 +78,7 @@ namespace RapidCMS.Core.Handlers
             if (httpClient.BaseAddress == default)
             {
                 throw new InvalidOperationException($"Please configure an HttpClient for the file handler '{_handlerAlias}' using " +
-                    $".TODO([..]) and configure its BaseAddress correctly.");
+                    $".AddRapidCMSFileUploadApiHttpClient<THandler>([..]) and configure its BaseAddress correctly.");
             }
 
             var response = await httpClient.SendAsync(request);
