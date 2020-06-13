@@ -7,7 +7,9 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Blazor.FileReader;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using RapidCMS.Core.Abstractions.Handlers;
+using RapidCMS.Core.Controllers;
 using RapidCMS.Core.Extensions;
 
 namespace RapidCMS.Core.Handlers
@@ -16,7 +18,7 @@ namespace RapidCMS.Core.Handlers
     {
         public static string GetFileUploaderAlias(Type handlerType)
         {
-            var type = (handlerType.IsGenericType && handlerType.GetGenericTypeDefinition() == typeof(ApiFileUploadHandler<>))
+            var type = (handlerType.IsGenericType && handlerType.GetGenericTypeDefinition().In(typeof(ApiFileUploadHandler<>), typeof(ApiFileUploadController<>)))
                 ? handlerType.GetGenericArguments().FirstOrDefault()
                 : handlerType;
 
@@ -40,7 +42,7 @@ namespace RapidCMS.Core.Handlers
 
         public async Task<object> SaveFileAsync(IFileInfo fileInfo, Stream stream)
         {
-            return await DoRequestAsync<object>(CreateRequest("file/validate", fileInfo, stream));
+            return await DoRequestAsync<object>(CreateRequest("file", fileInfo, stream));
         }
 
         public async Task<IEnumerable<string>> ValidateFileAsync(IFileInfo fileInfo)
@@ -53,7 +55,6 @@ namespace RapidCMS.Core.Handlers
             var content = new MultipartFormDataContent
             {
                 { new StringContent(fileInfo.LastModified?.ToString()), nameof(IFileInfo.LastModified) },
-                { new StringContent(fileInfo.LastModifiedDate?.ToString()), nameof(IFileInfo.LastModifiedDate) },
                 { new StringContent(fileInfo.Name?.ToString()), nameof(IFileInfo.Name) },
                 { new StringContent(fileInfo.Size.ToString()), nameof(IFileInfo.Size) },
                 { new StringContent(fileInfo.Type?.ToString()), nameof(IFileInfo.Type) }
@@ -88,7 +89,7 @@ namespace RapidCMS.Core.Handlers
                 HttpStatusCode.Unauthorized => throw new UnauthorizedAccessException(),
                 HttpStatusCode.Forbidden => throw new UnauthorizedAccessException(),
 
-                _ => throw new InvalidOperationException()
+                _ => throw new InvalidOperationException("Please configure the Api correctly.")
             };
         }
 
@@ -97,6 +98,7 @@ namespace RapidCMS.Core.Handlers
         {
             var response = await DoRequestAsync(request);
             var json = await response.Content.ReadAsStringAsync();
+
             return JsonConvert.DeserializeObject<TResult>(json);
         }
     }

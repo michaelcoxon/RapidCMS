@@ -9,10 +9,8 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using RapidCMS.Core.Abstractions.Config;
-using RapidCMS.Core.Abstractions.Data;
 using RapidCMS.Core.Abstractions.Dispatchers;
 using RapidCMS.Core.Abstractions.Factories;
-using RapidCMS.Core.Abstractions.Handlers;
 using RapidCMS.Core.Abstractions.Resolvers;
 using RapidCMS.Core.Abstractions.Services;
 using RapidCMS.Core.Abstractions.Setup;
@@ -20,7 +18,6 @@ using RapidCMS.Core.Authorization;
 using RapidCMS.Core.Controllers;
 using RapidCMS.Core.Conventions;
 using RapidCMS.Core.Dispatchers.Api;
-using RapidCMS.Core.Extensions;
 using RapidCMS.Core.Factories;
 using RapidCMS.Core.Handlers;
 using RapidCMS.Core.Models.Config.Api;
@@ -33,7 +30,6 @@ using RapidCMS.Core.Services.Exceptions;
 using RapidCMS.Core.Services.Parent;
 using RapidCMS.Core.Services.Persistence;
 using RapidCMS.Core.Services.Presentation;
-using RapidCMS.Repositories.ApiBridge;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

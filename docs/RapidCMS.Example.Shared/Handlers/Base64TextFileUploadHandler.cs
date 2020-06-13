@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Blazor.FileReader;
-using RapidCMS.Core.Abstractions.Handlers;
 
 namespace RapidCMS.Example.Shared.Handlers
 {
-    public class Base64TextFileUploadHandler : IFileUploadHandler
+    public class Base64TextFileUploadHandler : ITextUploadHandler
     {
         public async Task<object> SaveFileAsync(IFileInfo fileInfo, Stream stream)
         {

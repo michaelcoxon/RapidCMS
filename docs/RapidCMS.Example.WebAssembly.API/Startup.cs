@@ -31,6 +31,9 @@ namespace RapidCMS.Example.WebAssembly.API
             services.AddSingleton<IConverter<MappedEntity, DatabaseEntity>, Mapper>();
             services.AddSingleton<DatabaseEntityDataViewBuilder>();
 
+            services.AddTransient<Base64TextFileUploadHandler>();
+            services.AddTransient<Base64ImageUploadHandler>();
+
             services.AddRapidCMSApi(config =>
             {
                 // TODO: missing configurations:

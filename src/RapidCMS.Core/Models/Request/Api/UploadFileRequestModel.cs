@@ -18,6 +18,9 @@ namespace RapidCMS.Core.Models.Request.Api
 
         public long? LastModified { get; set; }
 
-        public DateTime? LastModifiedDate { get; set; }
+        public DateTime? LastModifiedDate { 
+            get => DateTimeOffset.FromUnixTimeMilliseconds(LastModified ?? 0).UtcDateTime;
+            set => LastModified = !value.HasValue ? 0 : new DateTimeOffset(value.Value).ToUnixTimeMilliseconds();
+        }
     }
 }

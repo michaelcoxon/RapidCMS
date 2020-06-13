@@ -27,7 +27,7 @@ namespace RapidCMS.Core.Controllers
         }
 
         [HttpPost("file")]
-        public async Task<ActionResult<object>> SaveFileAsync([FromForm] UploadFileRequestModel fileInfo, [FromForm] IFormFile file)
+        public async Task<ActionResult<object>> SaveFileAsync([FromForm] UploadFileRequestModel fileInfo, [FromForm(Name = "file")] IFormFile file)
         {
             if (DoesFileMatchFileInfo(fileInfo, file, out var downloadedFile))
             {
