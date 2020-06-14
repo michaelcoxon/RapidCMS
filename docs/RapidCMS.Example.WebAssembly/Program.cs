@@ -52,9 +52,6 @@ namespace RapidCMS.Example.WebAssembly
 
             builder.Services.AddSingleton<RandomNameActionHandler>();
 
-            //builder.Services.AddSingleton<Base64TextFileUploadHandler>();
-            //builder.Services.AddSingleton<Base64ImageUploadHandler>();
-
             builder.Services.AddTransient<ITextUploadHandler, Base64ApiTextUploadHandler>();
             builder.Services.AddRapidCMSFileUploadApiHttpClient<Base64TextFileUploadHandler>(_baseUri);
             builder.Services.AddTransient<IImageUploadHandler, Base64ApiImageUploadHandler>();

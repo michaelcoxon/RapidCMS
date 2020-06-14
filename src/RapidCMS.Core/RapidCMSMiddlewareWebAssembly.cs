@@ -86,8 +86,6 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var alias = ApiFileUploadHandler.GetFileUploaderAlias(typeof(THandler));
 
-            Console.WriteLine(alias);
-
             return services.AddHttpClient<ApiFileUploadHandler<THandler>>(alias)
                 .ConfigureHttpClient(x => x.BaseAddress = new Uri(baseUri, $"api/_rapidcms/{alias}/"));
         }

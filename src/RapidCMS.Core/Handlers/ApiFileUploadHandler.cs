@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Blazor.FileReader;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using RapidCMS.Core.Abstractions.Handlers;
 using RapidCMS.Core.Controllers;
 using RapidCMS.Core.Extensions;
@@ -22,7 +21,6 @@ namespace RapidCMS.Core.Handlers
                 ? handlerType.GetGenericArguments().FirstOrDefault()
                 : handlerType;
 
-            Console.WriteLine(type);
             return type?.Name.ToUrlFriendlyString() ?? "unknown-file-handler";
         }
     }
@@ -42,7 +40,7 @@ namespace RapidCMS.Core.Handlers
 
         public async Task<object> SaveFileAsync(IFileInfo fileInfo, Stream stream)
         {
-            return await DoRequestAsync<object>(CreateRequest("file", fileInfo, stream));
+            return await DoRequestAsync<dynamic>(CreateRequest("file", fileInfo, stream));
         }
 
         public async Task<IEnumerable<string>> ValidateFileAsync(IFileInfo fileInfo)
@@ -99,7 +97,9 @@ namespace RapidCMS.Core.Handlers
             var response = await DoRequestAsync(request);
             var json = await response.Content.ReadAsStringAsync();
 
-            return JsonConvert.DeserializeObject<TResult>(json);
+            return (typeof(TResult) == typeof(object))
+                ? JsonConvert.DeserializeObject<dynamic>(json) 
+                : JsonConvert.DeserializeObject<TResult>(json);
         }
     }
 }

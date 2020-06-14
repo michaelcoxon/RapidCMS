@@ -52,6 +52,7 @@ namespace RapidCMS.UI.Components.Editors
             }
             catch
             {
+                throw;
                 validationMessages = new[] { "Failed to validate file." };
             }
 
@@ -61,6 +62,8 @@ namespace RapidCMS.UI.Components.Editors
                 {
                     using var uploadedFile = await UploadFileToTempFileAsync(file, 8192, fileInfo.Size, (completion) =>
                     {
+                        Console.WriteLine(completion);
+
                         if (completion - UploadCompletion > 1)
                         {
                             UploadCompletion = completion;
