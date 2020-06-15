@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Blazor.FileReader;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RapidCMS.Core.Abstractions.Handlers;
 using RapidCMS.Core.Models.Request.Api;
+using RapidCMS.Core.Models.Response;
 
 namespace RapidCMS.Core.Controllers
 {
@@ -21,20 +23,26 @@ namespace RapidCMS.Core.Controllers
         }
 
         [HttpPost("file/validate")]
-        public async Task<ActionResult<IEnumerable<string>>> ValidateFileAsync([FromForm] UploadFileRequestModel fileInfo)
+        public async Task<ActionResult<FileUploadValidationResponseModel>> ValidateFileAsync([FromForm] UploadFileRequestModel fileInfo)
         {
-            return Ok(await _handler.ValidateFileAsync(fileInfo));
+            var messages = await _handler.ValidateFileAsync(fileInfo);
+            if (messages.Any())
+            {
+                return new FileUploadValidationResponseModel { ErrorMessages = messages };
+            }
+
+            return NoContent();
         }
 
         [HttpPost("file")]
-        public async Task<ActionResult<object>> SaveFileAsync([FromForm] UploadFileRequestModel fileInfo, [FromForm(Name = "file")] IFormFile file)
+        public async Task<ActionResult<FileUploadResponseModel>> SaveFileAsync([FromForm] UploadFileRequestModel fileInfo, [FromForm(Name = "file")] IFormFile file)
         {
             if (DoesFileMatchFileInfo(fileInfo, file, out var downloadedFile))
             {
                 try
                 {
                     var result = await _handler.SaveFileAsync(fileInfo, downloadedFile);
-                    return Ok(result);
+                    return new FileUploadResponseModel { Result = result };
                 }
                 catch { }
             }

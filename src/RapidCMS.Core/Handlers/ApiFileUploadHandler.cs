@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using RapidCMS.Core.Abstractions.Handlers;
 using RapidCMS.Core.Controllers;
 using RapidCMS.Core.Extensions;
+using RapidCMS.Core.Models.Response;
 
 namespace RapidCMS.Core.Handlers
 {
@@ -40,12 +41,14 @@ namespace RapidCMS.Core.Handlers
 
         public async Task<object> SaveFileAsync(IFileInfo fileInfo, Stream stream)
         {
-            return await DoRequestAsync<dynamic>(CreateRequest("file", fileInfo, stream));
+            var response = await DoRequestAsync<FileUploadResponseModel>(CreateRequest("file", fileInfo, stream));
+            return response?.Result ?? new object();
         }
 
         public async Task<IEnumerable<string>> ValidateFileAsync(IFileInfo fileInfo)
         {
-            return await DoRequestAsync<IEnumerable<string>>(CreateRequest("file/validate", fileInfo));
+            var response = await DoRequestAsync<FileUploadValidationResponseModel>(CreateRequest("file/validate", fileInfo));
+            return response?.ErrorMessages ?? Enumerable.Empty<string>();
         }
 
         private HttpRequestMessage CreateRequest(string url, IFileInfo fileInfo, Stream? stream = default)
@@ -84,6 +87,7 @@ namespace RapidCMS.Core.Handlers
             return response.StatusCode switch
             {
                 HttpStatusCode.OK => response,
+                HttpStatusCode.NoContent => response,
                 HttpStatusCode.Unauthorized => throw new UnauthorizedAccessException(),
                 HttpStatusCode.Forbidden => throw new UnauthorizedAccessException(),
 
@@ -91,15 +95,17 @@ namespace RapidCMS.Core.Handlers
             };
         }
 
-        private async Task<TResult> DoRequestAsync<TResult>(HttpRequestMessage request)
+        private async Task<TResult?> DoRequestAsync<TResult>(HttpRequestMessage request)
             where TResult : class
         {
             var response = await DoRequestAsync(request);
-            var json = await response.Content.ReadAsStringAsync();
+            if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                return default;
+            }
 
-            return (typeof(TResult) == typeof(object))
-                ? JsonConvert.DeserializeObject<dynamic>(json) 
-                : JsonConvert.DeserializeObject<TResult>(json);
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<TResult>(json);
         }
     }
 }
