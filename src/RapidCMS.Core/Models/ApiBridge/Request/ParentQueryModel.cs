@@ -18,6 +18,8 @@ namespace RapidCMS.Core.Models.ApiBridge.Request
             Take = query.Take;
             SearchTerm = query.SearchTerm;
             ActiveTab = query.ActiveTab;
+
+
         }
 
         public ParentQueryModel(IParent? parent, Type? variantType) : this(parent)
