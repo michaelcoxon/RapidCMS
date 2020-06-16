@@ -84,7 +84,7 @@ namespace RapidCMS.Core.Controllers
                     CollectionAlias = CollectionAlias,
                     ParentPath = query.ParentPath,
                     UsageType = UsageType.List | UsageType.Edit,
-                    Query = query.Query
+                    Query = query.GetQuery<TDatabaseEntity>()
                 });
 
                 return Ok(new EntitiesModel<IEntity>
@@ -112,7 +112,7 @@ namespace RapidCMS.Core.Controllers
                 {
                     CollectionAlias = CollectionAlias,
                     UsageType = UsageType.List | UsageType.Edit,
-                    Query = query.Query,
+                    Query = query.GetQuery<TDatabaseEntity>(),
                     Related = new EntityDescriptor
                     {
                         CollectionAlias = query.Related.CollectionAlias,
@@ -145,7 +145,7 @@ namespace RapidCMS.Core.Controllers
                 {
                     CollectionAlias = CollectionAlias,
                     UsageType = UsageType.List | UsageType.Add,
-                    Query = query.Query,
+                    Query = query.GetQuery<TDatabaseEntity>(),
                     Related = new EntityDescriptor
                     {
                         CollectionAlias = query.Related.CollectionAlias,

@@ -38,7 +38,7 @@ namespace RapidCMS.Example.Shared.Collections
                         editor
                             .AddSection(section =>
                             {
-                                section.AddField(x => x.Name);
+                                section.AddField(x => x.Name).SetOrderByExpression(x => x.Name, OrderByType.Ascending);
 
                                 // this field uses a custom editor, which must inherit BaseEditor
                                 section.AddField(x => x.Password).SetType(typeof(PasswordEditor));

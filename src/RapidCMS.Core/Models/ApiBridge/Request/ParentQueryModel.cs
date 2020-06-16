@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using RapidCMS.Core.Abstractions.Data;
 
 namespace RapidCMS.Core.Models.ApiBridge.Request
@@ -19,7 +20,12 @@ namespace RapidCMS.Core.Models.ApiBridge.Request
             SearchTerm = query.SearchTerm;
             ActiveTab = query.ActiveTab;
 
-
+            OrderBys = query.ActiveOrderBys
+                .Select(x => new OrderModel
+                {
+                    PropertyName = x.OrderByExpression.PropertyName,
+                    OrderByType = x.OrderByType
+                });
         }
 
         public ParentQueryModel(IParent? parent, Type? variantType) : this(parent)

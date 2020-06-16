@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using RapidCMS.Core.Abstractions.Data;
+using RapidCMS.Core.Helpers;
 using static RapidCMS.Core.Models.Data.Query;
 
 namespace RapidCMS.Core.Models.ApiBridge.Request
@@ -15,13 +18,23 @@ namespace RapidCMS.Core.Models.ApiBridge.Request
         // TODO: protect this variable more
         public string? VariantTypeName { get; set; }
 
-        [JsonIgnore]
-        public IQuery Query
+        public IEnumerable<OrderModel>? OrderBys { get; set; }
+
+        public IQuery GetQuery<TEntity>()
         {
-            get
+            var query = Create(Take, 1 + Skip / Math.Max(1, Take), SearchTerm, ActiveTab);
+
+            if (OrderBys != null)
             {
-                return Create(Take, 1 + Skip / Math.Max(1, Take), SearchTerm, ActiveTab);
+                // is throwing here the best option?
+                query.SetOrderBys(OrderBys
+                    .Select(x => new OrderByModel(
+                        x.OrderByType, 
+                        PropertyMetadataHelper.GetPropertyMetadata(typeof(TEntity), x.PropertyName)
+                            ?? throw new InvalidOperationException("Invalid properties given"))));
             }
+
+            return query;
         }
     }
 }

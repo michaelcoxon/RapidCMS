@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using RapidCMS.Core.Abstractions.Metadata;
+using RapidCMS.Core.Exceptions;
+using RapidCMS.Core.Extensions;
 using RapidCMS.Core.Models.Metadata;
 
 namespace RapidCMS.Core.Helpers
@@ -125,7 +127,7 @@ namespace RapidCMS.Core.Helpers
                         parameterTAsType,
                         (parameter, method) => Expression.Call(parameter, method));
 
-                var name = string.Join("", names);
+                var name = string.Join(".", names);
 
                 var getter = ConvertToGetterViaMethod(parameterT, getValueMethod, instanceExpression);
                 if (getter == null)
@@ -220,7 +222,7 @@ namespace RapidCMS.Core.Helpers
         {
             // TODO: unit test
 
-            if (objectProperties == null)
+            if (!(objectProperties?.Any() ?? false))
             {
                 return GetPropertyMetadata(subject, propertyInfo);
             }
@@ -240,6 +242,38 @@ namespace RapidCMS.Core.Helpers
             var lambda = Expression.Lambda(delegateType, nestedProperty, parameter);
 
             return GetPropertyMetadata(lambda);
+        }
+
+        public static IPropertyMetadata? GetPropertyMetadata(Type subject, string propertyName)
+        {
+            // TODO: unit test
+
+            try
+            {
+                var properties = propertyName
+                    .Split('.')
+                    .RecursiveSelect(subject, (property, @object) =>
+                    {
+                        var objectProperty = @object.GetProperty(property);
+                        if (objectProperty == null)
+                        {
+                            throw new NotFoundException($"Property {property} not found on {@object}.");
+                        }
+
+                        return (objectProperty.PropertyType, objectProperty);
+                    });
+
+                if (properties == null)
+                {
+                    return default;
+                }
+
+                return GetPropertyMetadata(subject, properties.TakeLast(1), properties.Last());
+            }
+            catch
+            {
+                return default;
+            }
         }
 
         private static Func<object, object>? ConvertToGetterViaMethod(ParameterExpression parameterT, MethodInfo getValueMethod, Expression instanceExpression)

@@ -58,7 +58,7 @@ namespace RapidCMS.Core.Tests.PropertyMetadata
             var data = PropertyMetadataHelper.GetPropertyMetadata(func) as IFullPropertyMetadata;
 
             Assert.IsNotNull(data);
-            Assert.AreEqual("BasicTest", data.PropertyName);
+            Assert.AreEqual("Basic.Test", data.PropertyName);
             Assert.AreEqual("Test Value", data.Getter(instance));
             Assert.AreEqual(typeof(string), data.PropertyType);
             Assert.AreEqual(typeof(ParentClass), data.ObjectType);
@@ -77,7 +77,7 @@ namespace RapidCMS.Core.Tests.PropertyMetadata
             var data = PropertyMetadataHelper.GetPropertyMetadata(func) as IFullPropertyMetadata;
 
             Assert.IsNotNull(data);
-            Assert.AreEqual("BasicId", data.PropertyName);
+            Assert.AreEqual("Basic.Id", data.PropertyName);
             Assert.AreEqual(1, data.Getter(instance));
             Assert.AreEqual(typeof(int), data.PropertyType);
             Assert.AreEqual(typeof(ParentClass), data.ObjectType);
@@ -356,7 +356,7 @@ namespace RapidCMS.Core.Tests.PropertyMetadata
             var data = PropertyMetadataHelper.GetPropertyMetadata(func);
 
             Assert.IsNotNull(data);
-            Assert.AreEqual("BasicNullableTest", data.PropertyName);
+            Assert.AreEqual("Basic.NullableTest", data.PropertyName);
             Assert.AreEqual("Test Value", data.Getter(instance));
             Assert.AreEqual(typeof(string), data.PropertyType);
             Assert.AreEqual(typeof(ParentClass), data.ObjectType);
